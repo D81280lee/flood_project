@@ -62,9 +62,9 @@ from sklearn.metrics import accuracy_score, f1_score, precision_recall_fscore_su
 
 def parse_args():
     parser = argparse.ArgumentParser(description="LoRA fine-tune LLM for 4-class flooding loss classification")
-    parser.add_argument("--model_name_or_path", type=str, required=True, help="Base model checkpoint")
-    parser.add_argument("--train_file", type=str, required=True, help="Path to training file (csv/json/jsonl)")
-    parser.add_argument("--eval_file", type=str, required=False, help="Path to eval/val file (csv/json/jsonl)")
+    parser.add_argument("--model_name_or_path", type=str, required=True, default='meta-llama/Llama-3.2-11B', help="Base model checkpoint")
+    parser.add_argument("--train_file", type=str, required=True, default='/home/daniel/Official V6/flood_project/data/train.csv', help="Path to training file (csv/json/jsonl)")
+    parser.add_argument("--eval_file", type=str, required=False, default='/home/daniel/Official V6/flood_project/data/val.csv', help="Path to eval/val file (csv/json/jsonl)")
     parser.add_argument("--text_column", type=str, default="summary", help="Column containing the text")
     parser.add_argument("--label_column", type=str, default="loss_category", help="Column containing the label")
     parser.add_argument("--output_dir", type=str, required=True, help="Where to save checkpoints")
