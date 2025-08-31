@@ -323,6 +323,7 @@ def main():
         weight_decay=args.weight_decay,
         warmup_ratio=args.warmup_ratio,
         logging_steps=args.logging_steps,
+        evaluation_strategy="steps" if args.do_eval else "no",
         eval_steps=args.eval_steps if args.do_eval else None,
         save_steps=args.save_steps,
         save_total_limit=args.save_total_limit,
