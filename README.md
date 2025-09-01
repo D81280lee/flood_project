@@ -4,7 +4,7 @@
   
 # 
 
-</div> : Performing risk assessment and prediction tasks on flooding incidents in Lexington County utilizing Large Language Models
+</div>Performing risk assessment and prediction tasks on flooding incidents in Lexington County utilizing Large Language Models
 
 ## Set up environment
 We conduct experiments with CUDA 13.0 and Ubuntu 24.04
