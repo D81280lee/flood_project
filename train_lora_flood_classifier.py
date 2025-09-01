@@ -1,30 +1,4 @@
 #!/usr/bin/env python3
-"""
-Dataset format expected:
-- A CSV/JSON file with at least two columns:
-  * text_column (default: "summary")
-  * label_column (default: "loss_category")
-- Labels can be strings; they will be mapped to integers.
-
-For me use case: This has worked
-py train_lora_flood_classifier.py \
-  --model_name_or_path meta-llama/Meta-Llama-3-8B-Instruct \
-  --train_file data/train.csv \
-  --eval_file data/val.csv \
-  --text_column summary \
-  --label_column loss_category \
-  --output_dir outputs/llama3-flood-lora \
-  --num_train_epochs 3 \
-  --per_device_train_batch_size 8 \
-  --per_device_eval_batch_size 16 \
-  --learning_rate 3e-4 \
-  --lora_r 16 --lora_alpha 32 --lora_dropout 0.05 \
-  --load_in_4bit \
-  --bf16
-
-Requirements (Pre-execution setup stuff):
-pip install -U transformers datasets peft accelerate bitsandbytes scikit-learn pandas
-"""
 
 import argparse
 import json
