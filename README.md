@@ -1,10 +1,10 @@
-# flood_project
+# Flood_project
 
 <div align="center">
   
 # 
 
-</div> FloodSafeLLM: Performing risk assessment and prediction tasks utilizing Large Language Models
+</div> : Performing risk assessment and prediction tasks on flooding incidents in Lexington County utilizing Large Language Models
 
 ## Set up environment
 We conduct experiments with CUDA 13.0 and Ubuntu 24.04
@@ -31,7 +31,7 @@ Data is divided into train and val, with 75% of data utilized for training and t
 
 The loss_category has 4 possible categories: Minor, Major, Severe, Catastrophic, which will be used to categorize flooding events.
 
-## Train SafeTraffic LLM
+## Execution/Training
 Run the following command to train an 11B Llama-3.2 model on flooding events in Lexington, SC to perform classification and prediction. This will run the train_lora_flood_classifier program, which will train the llm on the dataset. The infer_flood_classifier program will ONLY BE USED FOR FINAL TESTING (Also, make sure that you run huggingface-cli login on bash so that you have been granted access to the model): 
 ```
 For me use case: This has worked
