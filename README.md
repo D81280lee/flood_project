@@ -21,7 +21,6 @@ pip install -r requirements_flood_classifier.txt
 Updated requirements: pip install -U "bitsandbytes>=0.43" "transformers>=4.43" "peft>=0.11" "accelerate>=0.33" datasets scikit-learn
 python -c "import torch; print(torch.cuda.is_available())" 
 python -c "import bitsandbytes as bnb; import bitsandbytes.cuda_setup.main as m; print(m.get_cuda_lib_handle())"
-```
 
 ## Dataset
 Dataset format expected:
