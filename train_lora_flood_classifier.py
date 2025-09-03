@@ -23,7 +23,8 @@ from transformers import (
     set_seed,
 )
 
-from peft import LoraConfig, get_peft_model, TaskType
+from peft import LoraConfig, get_peft_model, TaskType, TaskType, prepare_model_for_kbit_training
+
 
 try:
     from transformers import BitsAndBytesConfig
@@ -33,6 +34,13 @@ except Exception:
 
 from sklearn.metrics import accuracy_score, f1_score, precision_recall_fscore_support, confusion_matrix
 
+def _has_bnb_cuda():
+    try:
+        import bitsandbytes as bnb
+        from bitsandbytes.cuda_setup import main as bnb_setup
+        return (torch.cuda.is_available() and bnb_setup.get_cuda_lib_handle() is not None)
+    except Exception:
+        return False
 
 def parse_args():
     parser = argparse.ArgumentParser(description="LoRA fine-tune LLM for 4-class flooding loss classification")
@@ -167,6 +175,7 @@ def make_model_and_tokenizer(args, num_labels: int, id2label: Dict[int, str], la
         label2id=label2id,
     )
     tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path, use_fast=True)
+    tokenizer.padding_side = "left"
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token if tokenizer.eos_token is not None else "[PAD]"
 
@@ -177,6 +186,8 @@ def make_model_and_tokenizer(args, num_labels: int, id2label: Dict[int, str], la
         device_map=device_map,
         **quant_kwargs
     )
+
+    model.config.pad_token_id = tokenizer.pad_token_id
     return model, tokenizer
 
 
@@ -251,7 +262,14 @@ def main():
 
     # Tokenizer & model
     model, tokenizer = make_model_and_tokenizer(args, num_labels=len(label_list), id2label=id2label, label2id=label2id)
-
+    if args.load_in_4bit:
+        if not _has_bnb_cuda():
+            raise RuntimeError("Hello muah hahaha! You passed --load_in_4bit but bitsandbytes has no CUDA support on this machine." \
+            "Run on Linux with a CUDA capable GPU (and bnb GPU Wheel)")
+        model = prepare_model_for_kbit_training(
+            model,
+            use_gradient_checkpointing=True,
+        )
     # LoRA
     target_modules = pick_target_modules(args.model_name_or_path, override=[m.strip() for m in args.target_modules.split(",")] if args.target_modules else None)
     lora_cfg = LoraConfig(
@@ -297,8 +315,9 @@ def main():
         weight_decay=args.weight_decay,
         warmup_ratio=args.warmup_ratio,
         logging_steps=args.logging_steps,
-        eval_strategy="steps" if args.do_eval else "no",
+        evaluation_strategy="steps" if args.do_eval else "no",   # <<<< fix here
         eval_steps=args.eval_steps if args.do_eval else None,
+        save_strategy="steps",
         save_steps=args.save_steps,
         save_total_limit=args.save_total_limit,
         fp16=args.fp16,
@@ -308,7 +327,10 @@ def main():
         load_best_model_at_end=True if args.do_eval else False,
         metric_for_best_model="f1_macro" if args.do_eval else None,
         greater_is_better=True if args.do_eval else None,
+        gradient_checkpointing=args.load_in_4bit,   # helpful when 4-bit
+        remove_unused_columns=False,                # safer with custom datasets
     )
+
 
     trainer_cls = WeightedTrainer if args.class_weighting else Trainer
     if args.class_weighting:
